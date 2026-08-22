@@ -149,3 +149,49 @@ At 25% selectivity, the query is already 2.93x slower than the 5% baseline — e
 *Single preliminary sample — formal 5-run baseline pending.
 
 **Next states to test:** 10%, 15%, 20% (to find exact threshold crossing point)
+
+
+---
+
+## Experiment E-001 continued — 20% selectivity data state
+
+### Data state
+
+- Pending orders: 20,000 of 100,000
+- Selectivity: 20%
+- Data transformation: 5,000 rows changed from `pending` back to `completed` (from 25% state), followed by `VACUUM (ANALYZE)`.
+- Observed plan: Index Scan using `idx_orders_status`
+- Observed actual rows: 20,000
+- Buffers: shared hit = 741
+- Verified count: completed = 80,000 (80%), pending = 20,000 (20%)
+
+### Runtime samples at 20% selectivity
+
+| Run | Execution time (ms) |
+|---:|---:|
+| 1 | 6.268 |
+| 2 | 7.769 |
+| 3 | 5.349 |
+| 4 | 7.912 |
+| 5 | 4.302 |
+
+Sorted: 4.302, 5.349, 6.268, 7.769, 7.912
+
+- **Median runtime: 6.268 ms**
+- Mean runtime: 6.320 ms
+- Slowdown vs preliminary 5% baseline (2.193 ms): **2.86x**
+- Regression threshold (>= 2x): **EXCEEDED**
+- Plan type changed vs baseline: **NO** — Index Scan retained
+
+### Evidence-based finding at 20%
+
+At 20% selectivity, the query is already 2.86x slower than the 5% baseline — exceeding the 2x harmful regression threshold — while PostgreSQL still uses an Index Scan. The fragility threshold lies between 5% and 20%. Next: test 15% and 10%.
+
+### Supporting screenshots
+
+- `e001-20-percent-run-1.png` — 6.268 ms
+- `e001-20-percent-run-2.png` — 7.769 ms
+- `e001-20-percent-run-3.png` — 5.349 ms
+- `e001-20-percent-run-4.png` — 7.912 ms
+- `e001-20-percent-run-5.png` — 4.302 ms
+
