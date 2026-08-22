@@ -1,0 +1,42 @@
+﻿# ── Environment and Secrets ────────────────────────────────────────────────
+.env
+.env.*
+*.secret
+secrets/
+credentials/
+
+# ── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# ── PostgreSQL database data files ─────────────────────────────────────────
+postgres-data/
+*.dump
+*.sql.gz
+
+# ── OS and IDE noise ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~
+
+# ── Logs and temp ──────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak
+tmp/
+temp/
+
+# ── Jupyter ────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
