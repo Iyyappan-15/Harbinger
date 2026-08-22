@@ -195,3 +195,54 @@ At 20% selectivity, the query is already 2.86x slower than the 5% baseline — e
 - `e001-20-percent-run-4.png` — 7.912 ms
 - `e001-20-percent-run-5.png` — 4.302 ms
 
+
+
+---
+
+## Experiment E-001 continued — 15% selectivity data state
+
+### Data state
+
+- Pending orders: 15,000 of 100,000
+- Selectivity: 15%
+- Data transformation: 5,000 rows changed from `pending` back to `completed` (from 20% state), followed by `VACUUM (ANALYZE)`.
+- Observed plan: Index Scan using `idx_orders_status`
+- Observed actual rows: 15,000
+- Buffers: shared hit = 657
+- Verified count: completed = 85,000 (85%), pending = 15,000 (15%)
+
+### Runtime samples at 15% selectivity
+
+| Run | Execution time (ms) |
+|---:|---:|
+| 1 | 5.124 |
+| 2 | 4.391 |
+| 3 | 6.106 |
+| 4 | 3.737 |
+| 5 | 4.078 |
+
+Sorted: 3.737, 4.078, 4.391, 5.124, 6.106
+
+- **Median runtime: 4.391 ms**
+- Mean runtime: 4.687 ms
+- Slowdown vs preliminary 5% baseline (2.193 ms): **2.00x**
+- Regression threshold (>= 2x): **EXACTLY AT THRESHOLD**
+- Plan type changed vs baseline: **NO** — Index Scan retained
+
+### CRITICAL Evidence-based finding at 15%
+
+At 15% selectivity, the median runtime (4.391 ms) is exactly 2.00x the preliminary 5% baseline (2.193 ms). This is the most significant measurement of E-001: the selectivity fragility threshold is at or very near 15%. Any selectivity above 15% produces a confirmed harmful regression.
+
+This finding must be validated formally by:
+1. Collecting a proper 5-run baseline at 5% to replace the single-sample 2.193 ms measurement.
+2. Testing 10% selectivity to confirm it falls below the 2x threshold.
+3. If 10% is below 2x, the threshold range is confirmed as 10%-15%.
+
+### Supporting screenshots
+
+- `e001-15-percent-run-1.png` — 5.124 ms
+- `e001-15-percent-run-2.png` — 4.391 ms
+- `e001-15-percent-run-3.png` — 6.106 ms
+- `e001-15-percent-run-4.png` — 3.737 ms
+- `e001-15-percent-run-5.png` — 4.078 ms
+
