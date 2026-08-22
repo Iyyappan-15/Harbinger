@@ -91,3 +91,61 @@ At 50% selectivity, the test query was substantially slower than at 5% selectivi
 - `e001-50-percent-run-3.png`
 - `e001-50-percent-run-4.png`
 - `e001-50-percent-run-5.png`
+
+---
+
+## Experiment E-001 continued — 25% selectivity data state
+
+### Data state
+
+- Pending orders: 25,000 of 100,000
+- Selectivity: 25%
+- Data transformation: 25,000 rows changed from `pending` back to `completed`, followed by `VACUUM (ANALYZE)`.
+- Observed plan: Index Scan using `idx_orders_status`
+- Observed actual rows: 25,000
+- Buffers: shared hit = 827
+- Verified count: completed = 75,000 (75%), pending = 25,000 (25%)
+
+### Runtime samples at 25% selectivity
+
+| Run | Execution time (ms) |
+|---:|---:|
+| 1 | 5.089 |
+| 2 | 6.115 |
+| 3 | 9.414 |
+| 4 | 6.417 |
+| 5 | 9.545 |
+
+Sorted: 5.089, 6.115, 6.417, 9.414, 9.545
+
+- **Median runtime: 6.417 ms**
+- Mean runtime: 7.316 ms
+- Slowdown vs preliminary 5% baseline (2.193 ms): **2.93x**
+- Regression threshold (>= 2x): **EXCEEDED**
+- Plan type changed vs baseline: **NO** — Index Scan retained
+
+### Evidence-based finding at 25%
+
+At 25% selectivity, the query is already 2.93x slower than the 5% baseline — exceeding the 2x harmful regression threshold — while PostgreSQL still uses an Index Scan. The fragility threshold lies somewhere between 5% and 25% and must be narrowed by testing 10%, 15%, and 20%.
+
+### Supporting screenshots
+
+- `e001-25-percent-run-1.png` — 5.089 ms
+- `e001-25-percent-run-2.png` — 6.115 ms
+- `e001-25-percent-run-3.png` — 9.414 ms
+- `e001-25-percent-run-4.png` — 6.417 ms
+- `e001-25-percent-run-5.png` — 9.545 ms
+
+---
+
+## Cumulative results so far (E-001)
+
+| Selectivity | Pending Rows | Median Runtime | Slowdown vs 5% | Regression? | Plan |
+|---:|---:|---:|---:|---|---|
+| 5% (baseline) | 5,000 | 2.193 ms* | 1.00x | NO | Index Scan |
+| 25% | 25,000 | **6.417 ms** | **2.93x** | **YES** | Index Scan |
+| 50% | 50,000 | **12.578 ms** | **5.73x** | **YES** | Index Scan |
+
+*Single preliminary sample — formal 5-run baseline pending.
+
+**Next states to test:** 10%, 15%, 20% (to find exact threshold crossing point)

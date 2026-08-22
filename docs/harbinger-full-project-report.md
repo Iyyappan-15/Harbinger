@@ -1,4 +1,4 @@
-﻿# Harbinger — Complete Project Research Record
+# Harbinger — Complete Project Research Record
 ## Final Year B.E. Computer Science Engineering Project
 
 **Author:** Iyyappan
@@ -189,16 +189,28 @@ WHERE status = 'pending';
 | Matching rows | 50,000 |
 | Buffers | shared hit = 1,250 |
 
-### 8.5 Preliminary Comparison (50% vs 5%)
+### 8.5 Comparison — All Measured States vs Baseline
 
-| Metric | Value |
+| Selectivity | Pending Rows | Median Runtime | Slowdown vs 5% | Regression (>=2x)? | Plan |
+|---|---|---|---|---|---|
+| 5% (Baseline) | 5,000 | 2.193 ms* | 1.00x | NO | Index Scan |
+| 25% | 25,000 | **6.417 ms** | **2.93x** | **YES** | Index Scan |
+| 50% | 50,000 | **12.578 ms** | **5.73x** | **YES** | Index Scan |
+
+*Single preliminary sample — formal 5-run baseline pending.
+
+### 8.5a Detailed 25% Selectivity Results
+
+| Run | Execution Time (ms) |
 |---|---|
-| Baseline (5%) | 2.193 ms (single sample) |
-| Drifted (50%) median | 12.578 ms |
-| Slowdown ratio | **5.73x** |
-| Absolute increase | 10.385 ms |
-| Regression threshold (>= 2x) | **EXCEEDED** |
-| Plan type changed? | **NO** — Index Scan retained at both states |
+| 1 | 5.089 |
+| 2 | 6.115 |
+| 3 | 9.414 |
+| 4 | 6.417 |
+| 5 | 9.545 |
+
+Sorted: 5.089, 6.115, 6.417, 9.414, 9.545
+**Median: 6.417 ms | Mean: 7.316 ms | Buffers: shared hit=827**
 
 ### 8.6 Key Finding from E-001 So Far
 
