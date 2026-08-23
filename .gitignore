@@ -40,3 +40,6 @@ temp/
 
 # ── Jupyter ────────────────────────────────────────────────────────────────
 .ipynb_checkpoints/
+
+# Private / local-only documents (never push)
+private/
