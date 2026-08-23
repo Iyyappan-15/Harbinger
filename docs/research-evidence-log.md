@@ -315,3 +315,67 @@ PostgreSQL retained an **Index Scan at every tested selectivity level** (5% thro
 - `e001-10-percent-run-4.png` — 2.153 ms
 - `e001-10-percent-run-5.png` — 3.584 ms
 
+
+
+---
+
+## Experiment E-001 — Formal 5% Baseline — FINAL MEASUREMENT
+
+### Purpose
+Replace the preliminary single-sample baseline (2.193 ms) with a proper 5-run median, consistent with the measurement protocol applied to all other selectivity states.
+
+### Data state
+- Pending orders: 5,000 of 100,000
+- Selectivity: 5%
+- Observed plan: Index Scan using `idx_orders_status`
+- Observed actual rows: 5,000
+- Buffers: shared hit = 486
+
+### Runtime samples — Formal 5% baseline
+
+| Run | Execution time (ms) |
+|---:|---:|
+| 1 | 2.528 |
+| 2 | 2.882 |
+| 3 | 2.527 |
+| 4 | 1.347 |
+| 5 | 1.735 |
+
+Sorted: 1.347, 1.735, 2.527, 2.528, 2.882
+
+- **Formal baseline median: 2.527 ms**
+- Mean: 2.204 ms
+- Preliminary single-sample value: 2.193 ms (now retired)
+
+---
+
+## EXPERIMENT E-001 — FINAL VALIDATED RESULTS (All States, Formal Baseline)
+
+### Revised Slowdown Ratios — Using Formal Baseline (2.527 ms)
+
+| Selectivity | Pending Rows | Buffers | Median (ms) | Slowdown (formal) | Regression (>=2x)? | Plan |
+|---:|---:|---:|---:|---:|---|---|
+| 5% (Formal Baseline) | 5,000 | 486 | **2.527** | 1.00x | NO | Index Scan |
+| 10% | 10,000 | 571 | 3.397 | **1.34x** | NO | Index Scan |
+| 15% | 15,000 | 657 | 4.391 | **1.74x** | NO | Index Scan |
+| 20% | 20,000 | 741 | 6.268 | **2.48x** | YES | Index Scan |
+| 25% | 25,000 | 827 | 6.417 | **2.54x** | YES | Index Scan |
+| 50% | 50,000 | 1,250 | 12.578 | **4.98x** | YES | Index Scan |
+
+### REVISED Fragility Threshold: 15% to 20% Selectivity
+
+With the formal 5-run median baseline (2.527 ms):
+- At 15% selectivity: 4.391 ms → **1.74x** — SAFE (below 2x threshold)
+- At 20% selectivity: 6.268 ms → **2.48x** — REGRESSION (exceeds 2x threshold)
+- **Confirmed threshold range: 15%–20% selectivity**
+
+### Methodological Note — Why the Threshold Shifted
+The preliminary baseline of 2.193 ms was a single timing sample that happened to land below the true median (2.527 ms). Using a single sample overestimated the slowdown ratios — making 15% appear to be exactly at the 2x boundary when it was actually safely below it. This revision demonstrates precisely why the Harbinger methodology mandates 5-run median measurements for every state, including the baseline. The formal result is more conservative and more accurate.
+
+### Supporting screenshots — Formal 5% baseline
+- `e001-baseline-5pct-formal-run-1.png` — 2.528 ms
+- `e001-baseline-5pct-formal-run-2.png` — 2.882 ms
+- `e001-baseline-5pct-formal-run-3.png` — 2.527 ms
+- `e001-baseline-5pct-formal-run-4.png` — 1.347 ms
+- `e001-baseline-5pct-formal-run-5.png` — 1.735 ms
+
