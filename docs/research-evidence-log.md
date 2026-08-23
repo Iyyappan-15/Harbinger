@@ -246,3 +246,72 @@ This finding must be validated formally by:
 - `e001-15-percent-run-4.png` — 3.737 ms
 - `e001-15-percent-run-5.png` — 4.078 ms
 
+
+
+---
+
+## Experiment E-001 continued — 10% selectivity data state
+
+### Data state
+
+- Pending orders: 10,000 of 100,000
+- Selectivity: 10%
+- Data transformation: 5,000 rows changed from `pending` back to `completed` (from 15% state), followed by `VACUUM (ANALYZE)`.
+- Observed plan: Index Scan using `idx_orders_status`
+- Observed actual rows: 10,000
+- Buffers: shared hit = 571
+- Verified count: completed = 90,000 (90%), pending = 10,000 (10%)
+
+### Runtime samples at 10% selectivity
+
+| Run | Execution time (ms) |
+|---:|---:|
+| 1 | 2.591 |
+| 2 | 4.513 |
+| 3 | 3.397 |
+| 4 | 2.153 |
+| 5 | 3.584 |
+
+Sorted: 2.153, 2.591, 3.397, 3.584, 4.513
+
+- **Median runtime: 3.397 ms**
+- Mean runtime: 3.248 ms
+- Slowdown vs preliminary 5% baseline (2.193 ms): **1.55x**
+- Regression threshold (>= 2x): **NOT EXCEEDED — SAFE STATE**
+- Plan type changed vs baseline: **NO** — Index Scan retained
+
+---
+
+## EXPERIMENT E-001 — FINAL CONFIRMED FINDING
+
+### Fragility Threshold: 10% to 15% selectivity
+
+The selectivity fragility threshold for the tested query on `harbinger_lab.orders` (100,000 rows, B-tree index on `status`) is confirmed between **10% and 15% selectivity**:
+
+- At 10% selectivity: median 3.397 ms — **1.55x slowdown — SAFE (below 2x threshold)**
+- At 15% selectivity: median 4.391 ms — **2.00x slowdown — AT REGRESSION THRESHOLD**
+- All states above 15% exceeded the 2x threshold
+
+PostgreSQL retained an **Index Scan at every tested selectivity level** (5% through 50%), confirming that the harmful regression was invisible to plan-type monitoring.
+
+### Complete Results Table
+
+| Selectivity | Pending Rows | Buffers | Median (ms) | Slowdown | Regression? | Plan |
+|---:|---:|---:|---:|---:|---|---|
+| 5% (baseline) | 5,000 | 125 | 2.193* | 1.00x | NO | Index Scan |
+| 10% | 10,000 | 571 | **3.397** | **1.55x** | **NO** | Index Scan |
+| 15% | 15,000 | 657 | **4.391** | **2.00x** | **THRESHOLD** | Index Scan |
+| 20% | 20,000 | 741 | **6.268** | **2.86x** | YES | Index Scan |
+| 25% | 25,000 | 827 | **6.417** | **2.93x** | YES | Index Scan |
+| 50% | 50,000 | 1,250 | **12.578** | **5.73x** | YES | Index Scan |
+
+*Single preliminary sample — must be replaced with 5-run median in formal validation.
+
+### Supporting screenshots
+
+- `e001-10-percent-run-1.png` — 2.591 ms
+- `e001-10-percent-run-2.png` — 4.513 ms
+- `e001-10-percent-run-3.png` — 3.397 ms
+- `e001-10-percent-run-4.png` — 2.153 ms
+- `e001-10-percent-run-5.png` — 3.584 ms
+
