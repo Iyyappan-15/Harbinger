@@ -4,3 +4,5 @@ matplotlib>=3.7
 seaborn>=0.13
 streamlit>=1.62
 plotly>=6.0
+fastapi>=0.110
+uvicorn>=0.28

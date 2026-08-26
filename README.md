@@ -123,7 +123,7 @@ git clone https://github.com/Iyyappan-15/Harbinger.git
 cd harbinger
 ```
 
-**2. Install dependencies:**
+**2. Install Python dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
@@ -134,10 +134,19 @@ cp config/db_config.example.py config/db_config.py
 # Edit config/db_config.py with your PostgreSQL credentials
 ```
 
-**4. Run the automated sweep:**
+**4. Start the FastAPI backend:**
 ```bash
-python scripts/harbinger_engine.py
+uvicorn scripts.api_server:app --reload --port 8000
 ```
+
+**5. Start the React Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev -- --port 3000
+```
+Open `http://localhost:3000` to access the full interactive dashboard.
+
 
 ---
 
@@ -147,10 +156,13 @@ python scripts/harbinger_engine.py
 |---|---|---|---|
 | Database | PostgreSQL | 18 | System under study |
 | Language | Python | 3.14 | Automation engine |
+| API Server | FastAPI | 0.110+ | REST API Layer |
+| Frontend | React + Vite | 19 / 6 | Single Page App |
+| Component UI | Material-UI (MUI) | 6.x | Dark Mode Components & Grid |
+| Interactive Charts | Recharts | 2.x | D3 SVG plots with threshold overlays |
 | DB Driver | psycopg2-binary | 2.9+ | Python ↔ PostgreSQL |
-| Data | pandas | 3.x | Median, CSV output |
-| Charts | matplotlib + seaborn | 3.x | Threshold curves |
-| Version Control | Git + GitHub | — | Full history |
+| Data | pandas | 3.x | Median execution calculation |
+| Version Control | Git + GitHub | — | Configuration & history tracking |
 
 ---
 
@@ -172,9 +184,10 @@ python scripts/harbinger_engine.py
 - [x] Phase 3 — Python automation engine (dual-threshold sweep)
 - [ ] Phase 4 — E-002 JOIN query experiment (trigger PTT with multi-table join)
 - [x] Phase 5 — CLI application
-- [x] Phase 6 — Streamlit dashboard
-- [ ] Phase 7 — GitHub PR integration
-- [ ] Phase 8 — Final research report and paper
+- [x] Phase 6 — Streamlit dashboard (internal validation)
+- [x] Phase 7 — React + Vite Dashboard & FastAPI Backend (presentation UI)
+- [ ] Phase 8 — GitHub PR integration
+- [ ] Phase 9 — Final research report and paper
 
 ---
 
