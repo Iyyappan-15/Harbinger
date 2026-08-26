@@ -26,19 +26,23 @@ REGRESSION_THRESHOLD = 2.0
 
 BENCHMARK_QUERY = """
 SELECT
-    order_id,
-    customer_id,
-    order_amount
-FROM harbinger_lab.orders
-WHERE status = %(val)s
+    o.order_id,
+    c.customer_name,
+    c.customer_tier,
+    o.order_amount
+FROM harbinger_lab.orders o
+JOIN harbinger_lab.customers c ON o.customer_id = c.customer_id
+WHERE o.status = %(val)s
 """
 
 EXPLAIN_QUERY = """
 EXPLAIN (ANALYZE, BUFFERS, TIMING OFF)
 SELECT
-    order_id,
-    customer_id,
-    order_amount
-FROM harbinger_lab.orders
-WHERE status = %(val)s
+    o.order_id,
+    c.customer_name,
+    c.customer_tier,
+    o.order_amount
+FROM harbinger_lab.orders o
+JOIN harbinger_lab.customers c ON o.customer_id = c.customer_id
+WHERE o.status = %(val)s
 """
