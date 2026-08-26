@@ -219,10 +219,14 @@ export default function App() {
 
   const getCleanPlanName = (planStr) => {
     if (!planStr) return "Unknown";
-    if (planStr.includes("Seq Scan") || planStr.includes("Sequential Scan")) return "Seq Scan";
-    if (planStr.includes("Index Scan")) return "Index Scan";
-    if (planStr.includes("Bitmap Heap Scan")) return "Bitmap Scan";
-    return planStr.split('\n')[0].split(' on ')[0];
+    const firstLine = planStr.split('\n')[0].trim();
+    if (firstLine.includes("Hash Join")) return "Hash Join";
+    if (firstLine.includes("Merge Join")) return "Merge Join";
+    if (firstLine.includes("Nested Loop")) return "Nested Loop";
+    if (firstLine.includes("Seq Scan") || firstLine.includes("Sequential Scan")) return "Seq Scan";
+    if (firstLine.includes("Index Scan")) return "Index Scan";
+    if (firstLine.includes("Bitmap Heap Scan")) return "Bitmap Scan";
+    return firstLine.split(' on ')[0];
   };
 
   // Helper formatting values
