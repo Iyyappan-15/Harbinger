@@ -735,11 +735,13 @@ export default function App() {
                 </Typography>
                 <pre style={{ margin: 0, padding: 16, backgroundColor: '#111827', border: '1px solid #1f2937', borderRadius: 4, overflowX: 'auto', fontFamily: '"JetBrains Mono", monospace', fontSize: 13 }}>
 {`SELECT
-    order_id,
-    customer_id,
-    order_amount
-FROM harbinger_lab.orders
-WHERE status = 'pending';`}
+    o.order_id,
+    c.customer_name,
+    c.customer_tier,
+    o.order_amount
+FROM harbinger_lab.orders o
+JOIN harbinger_lab.customers c ON o.customer_id = c.customer_id
+WHERE o.status = 'pending';`}
                 </pre>
 
                 <Typography variant="subtitle2" color="primary" sx={{ mt: 3, mb: 1, fontWeight: 'bold' }}>
@@ -748,11 +750,13 @@ WHERE status = 'pending';`}
                 <pre style={{ margin: 0, padding: 16, backgroundColor: '#111827', border: '1px solid #1f2937', borderRadius: 4, overflowX: 'auto', fontFamily: '"JetBrains Mono", monospace', fontSize: 13 }}>
 {`EXPLAIN (ANALYZE, BUFFERS, TIMING OFF)
 SELECT
-    order_id,
-    customer_id,
-    order_amount
-FROM harbinger_lab.orders
-WHERE status = 'pending';`}
+    o.order_id,
+    c.customer_name,
+    c.customer_tier,
+    o.order_amount
+FROM harbinger_lab.orders o
+JOIN harbinger_lab.customers c ON o.customer_id = c.customer_id
+WHERE o.status = 'pending';`}
                 </pre>
               </Paper>
             </Container>
