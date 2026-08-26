@@ -217,6 +217,14 @@ export default function App() {
     link.click();
   };
 
+  const getCleanPlanName = (planStr) => {
+    if (!planStr) return "Unknown";
+    if (planStr.includes("Seq Scan") || planStr.includes("Sequential Scan")) return "Seq Scan";
+    if (planStr.includes("Index Scan")) return "Index Scan";
+    if (planStr.includes("Bitmap Heap Scan")) return "Bitmap Scan";
+    return planStr.split('\n')[0].split(' on ')[0];
+  };
+
   // Helper formatting values
   const getRiskColor = (risk) => {
     if (risk === "Critical Risk") return "error";
@@ -439,8 +447,10 @@ export default function App() {
                           <Typography color="text.secondary" variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
                             Plan Transition (PTT)
                           </Typography>
-                          <Typography variant="h4" sx={{ fontWeight: 'bold', mt: 1, color: '#9b59b6' }}>
-                            {currentSweep.ptt !== null ? `${currentSweep.ptt}%` : "None"}
+                          <Typography variant="h4" sx={{ fontWeight: 'bold', mt: 1, color: '#9b59b6', fontSize: currentSweep.ptt !== null ? 20 : 28 }}>
+                            {currentSweep.ptt !== null ? (
+                              `${currentSweep.ptt}% (${getCleanPlanName(currentSweep.results.find(r => r.selectivity_pct === currentSweep.ptt)?.plan_structure)})`
+                            ) : "None"}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
                             Selectivity where plan type changes
@@ -581,6 +591,7 @@ export default function App() {
                           <TableCell sx={{ fontWeight: 'bold' }}>Selectivity (%)</TableCell>
                           <TableCell sx={{ fontWeight: 'bold' }}>Median Runtime</TableCell>
                           <TableCell sx={{ fontWeight: 'bold' }}>Slowdown Ratio</TableCell>
+                          <TableCell sx={{ fontWeight: 'bold' }}>Query Plan</TableCell>
                           <TableCell sx={{ fontWeight: 'bold' }}>FT_runtime Status</TableCell>
                           <TableCell sx={{ fontWeight: 'bold' }}>PTT Status</TableCell>
                           <TableCell sx={{ fontWeight: 'bold' }}>Action Plan</TableCell>
@@ -601,6 +612,9 @@ export default function App() {
                             <TableCell sx={{ fontWeight: 'bold' }}>{row.selectivity_pct}%</TableCell>
                             <TableCell>{row.median_ms.toFixed(3)} ms</TableCell>
                             <TableCell>{row.slowdown.toFixed(2)}x</TableCell>
+                            <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: row.is_plan_transition ? '#9b59b6' : '#4a9eff' }}>
+                              {getCleanPlanName(row.plan_structure)}
+                            </TableCell>
                             <TableCell>
                               {row.is_perf_regression ? (
                                 <Chip size="small" label="Regressed" color="error" variant="outlined" />
