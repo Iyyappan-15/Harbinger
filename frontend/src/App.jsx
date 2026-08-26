@@ -34,17 +34,15 @@ import {
   Alert,
   Tooltip as MuiTooltip
 } from '@mui/material';
-import {
-  Storage as DbIcon,
-  PlayArrow as PlayIcon,
-  Refresh as RefreshIcon,
-  History as HistoryIcon,
-  Dashboard as DashboardIcon,
-  HelpOutline as HelpIcon,
-  Download as DownloadIcon,
-  Code as CodeIcon,
-  Warning as WarningIcon
-} from '@mui/icons-material';
+import DbIcon from '@mui/icons-material/Storage';
+import PlayIcon from '@mui/icons-material/PlayArrow';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import HistoryIcon from '@mui/icons-material/History';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import HelpIcon from '@mui/icons-material/Help';
+import DownloadIcon from '@mui/icons-material/Download';
+import CodeIcon from '@mui/icons-material/Code';
+import WarningIcon from '@mui/icons-material/Warning';
 import {
   LineChart,
   Line,
