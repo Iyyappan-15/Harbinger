@@ -171,8 +171,8 @@ python scripts/harbinger_engine.py
 - [x] Phase 2 — Manual proof-of-concept (E-001, 6 selectivity levels, 33 screenshots)
 - [x] Phase 3 — Python automation engine (dual-threshold sweep)
 - [ ] Phase 4 — E-002 JOIN query experiment (trigger PTT with multi-table join)
-- [ ] Phase 5 — CLI application
-- [ ] Phase 6 — Streamlit dashboard
+- [x] Phase 5 — CLI application
+- [x] Phase 6 — Streamlit dashboard
 - [ ] Phase 7 — GitHub PR integration
 - [ ] Phase 8 — Final research report and paper
 
