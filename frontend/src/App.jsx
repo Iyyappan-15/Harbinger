@@ -43,6 +43,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import DownloadIcon from '@mui/icons-material/Download';
 import CodeIcon from '@mui/icons-material/Code';
 import WarningIcon from '@mui/icons-material/Warning';
+import MenuIcon from '@mui/icons-material/Menu';
 import {
   LineChart,
   Line,
@@ -83,7 +84,7 @@ const darkTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
+    fontFamily: '"Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif',
   },
   components: {
     MuiCard: {
@@ -109,6 +110,7 @@ const drawerWidth = 320;
 
 export default function App() {
   const [activeTab, setActiveTab] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [dbStatus, setDbStatus] = useState(null);
   const [history, setHistory] = useState([]);
   const [currentSweep, setCurrentSweep] = useState(null);
@@ -247,6 +249,15 @@ export default function App() {
         {/* App Bar */}
         <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: '#111827', borderBottom: '1px solid #1f2937' }} elevation={0}>
           <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              edge="start"
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
             <DbIcon sx={{ mr: 2, color: '#4a9eff' }} />
             <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 'bold', letterSpacing: 0.5 }}>
               HARBINGER <span style={{ fontSize: 13, color: '#888', fontWeight: 'normal' }}>| Query Fragility Analysis Engine</span>
@@ -274,9 +285,17 @@ export default function App() {
         <Drawer
           variant="permanent"
           sx={{
-            width: drawerWidth,
+            width: sidebarOpen ? drawerWidth : 0,
             flexShrink: 0,
-            [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box', bgcolor: '#0f1322', borderRight: '1px solid #1f2937' },
+            transition: 'width 0.2s ease-in-out',
+            [`& .MuiDrawer-paper`]: {
+              width: drawerWidth,
+              boxSizing: 'border-box',
+              bgcolor: '#0f1322',
+              borderRight: '1px solid #1f2937',
+              transform: sidebarOpen ? 'none' : `translateX(-${drawerWidth}px)`,
+              transition: 'transform 0.2s ease-in-out',
+            },
           }}
         >
           <Toolbar />
@@ -362,7 +381,15 @@ export default function App() {
         </Drawer>
 
         {/* Main Work Area */}
-        <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}>
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            p: 3,
+            width: sidebarOpen ? `calc(100% - ${drawerWidth}px)` : '100%',
+            transition: 'width 0.2s / transform 0.2s ease-in-out',
+          }}
+        >
           <Toolbar />
           
           {/* Top Tabs */}
@@ -682,7 +709,7 @@ export default function App() {
                   Target Table
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 3, fontFamily: 'monospace' }}>
-                  {TARGET_TABLE} (100,000 Total Rows)
+                  {dbStatus?.target_table || "harbinger_lab.orders"} (100,000 Total Rows)
                 </Typography>
 
                 <Typography variant="subtitle2" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
