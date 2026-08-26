@@ -258,7 +258,6 @@ export default function App() {
             >
               <MenuIcon />
             </IconButton>
-            <DbIcon sx={{ mr: 2, color: '#4a9eff' }} />
             <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 'bold', letterSpacing: 0.5 }}>
               HARBINGER <span style={{ fontSize: 13, color: '#888', fontWeight: 'normal' }}>| Query Fragility Analysis Engine</span>
             </Typography>
@@ -318,7 +317,7 @@ export default function App() {
                 step={0.1}
                 valueLabelDisplay="auto"
               />
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="body2" sx={{ color: '#cbd5e1', fontSize: '13px', mt: 0.5, display: 'block', lineHeight: 1.35 }}>
                 Cross this limit (x baseline) to trigger Performance Fragility (FT_runtime).
               </Typography>
             </Box>
@@ -337,7 +336,7 @@ export default function App() {
                 step={1}
                 valueLabelDisplay="auto"
               />
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="body2" sx={{ color: '#cbd5e1', fontSize: '13px', mt: 0.5, display: 'block', lineHeight: 1.35 }}>
                 Number of executions evaluated to determine the median query runtime.
               </Typography>
             </Box>

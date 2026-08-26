@@ -95,7 +95,7 @@ def post_run_sweep(req: SweepRequest):
 
     try:
         logger.info(f"Starting sweep (threshold={threshold}, levels={levels}, runs={runs})")
-        summary = run_full_sweep(regression_threshold=threshold, verbose=False)
+        summary = run_full_sweep(regression_threshold=threshold, verbose=False, selectivity_levels=levels, runs_per_state=runs)
         
         # Save results locally if requested
         if req.save:

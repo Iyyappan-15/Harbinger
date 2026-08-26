@@ -19,7 +19,7 @@ from scripts.experiment_runner import run_benchmark
 from scripts.result_analyzer import analyze_state, classify_risk
 
 
-def run_full_sweep(regression_threshold: float = REGRESSION_THRESHOLD, verbose: bool = True) -> dict:
+def run_full_sweep(regression_threshold: float = REGRESSION_THRESHOLD, verbose: bool = True, selectivity_levels: list = None, runs_per_state: int = None) -> dict:
     """
     Orchestrates the entire selectivity sweep:
       1. Records initial state so we can restore it later.
@@ -44,8 +44,11 @@ def run_full_sweep(regression_threshold: float = REGRESSION_THRESHOLD, verbose: 
     if verbose:
         print(f"       Initial state: {initial_pct}% selectivity ({initial_pending:,} pending rows)")
 
+    levels_to_sweep = selectivity_levels if selectivity_levels is not None else SELECTIVITY_LEVELS
+    runs_count = runs_per_state if runs_per_state is not None else RUNS_PER_STATE
+
     # Sort selectivity levels to sweep systematically
-    sweep_levels = sorted(SELECTIVITY_LEVELS)
+    sweep_levels = sorted(levels_to_sweep)
     baseline_level = sweep_levels[0]
     drift_levels = sweep_levels[1:]
     
@@ -56,7 +59,7 @@ def run_full_sweep(regression_threshold: float = REGRESSION_THRESHOLD, verbose: 
         print(f"\n[SWEEP] Establishing baseline at {baseline_level}% selectivity...")
     
     set_selectivity(baseline_level, verbose=verbose)
-    baseline_times, baseline_plan = run_benchmark(n_runs=RUNS_PER_STATE, verbose=verbose)
+    baseline_times, baseline_plan = run_benchmark(n_runs=runs_count, verbose=verbose)
     
     # Analyze baseline against itself to setup tracking structures
     baseline_analysis = analyze_state(
@@ -89,7 +92,7 @@ def run_full_sweep(regression_threshold: float = REGRESSION_THRESHOLD, verbose: 
             print(f"\n[SWEEP] Advancing to {level}% selectivity...")
             
         set_selectivity(level, verbose=verbose)
-        times, plan = run_benchmark(n_runs=RUNS_PER_STATE, verbose=verbose)
+        times, plan = run_benchmark(n_runs=runs_count, verbose=verbose)
         
         analysis = analyze_state(
             times=times,
