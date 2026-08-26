@@ -182,7 +182,7 @@ Open `http://localhost:3000` to access the full interactive dashboard.
 - [x] Phase 1 — PostgreSQL test environment setup
 - [x] Phase 2 — Manual proof-of-concept (E-001, 6 selectivity levels, 33 screenshots)
 - [x] Phase 3 — Python automation engine (dual-threshold sweep)
-- [ ] Phase 4 — E-002 JOIN query experiment (trigger PTT with multi-table join)
+- [x] Phase 4 — E-002 JOIN query experiment (trigger PTT with multi-table join)
 - [x] Phase 5 — CLI application
 - [x] Phase 6 — Streamlit dashboard (internal validation)
 - [x] Phase 7 — React + Vite Dashboard & FastAPI Backend (presentation UI)
