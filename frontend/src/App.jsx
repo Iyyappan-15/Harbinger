@@ -162,6 +162,7 @@ export default function App() {
         const sweepLevels = data.results.map(r => r.selectivity_pct);
         setSelectedLevels(sweepLevels);
       }
+      setActiveTab(0); // Switch back to the dashboard tab to view the loaded report
     } catch (err) {
       console.error("Error loading history detail:", err);
     } finally {
