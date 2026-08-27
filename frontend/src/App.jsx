@@ -257,7 +257,7 @@ export default function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: 'flex', minHeight: '100vh' }}>
         
         {/* App Bar */}
         <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: '#111827', borderBottom: '1px solid #1f2937' }} elevation={0}>
@@ -307,6 +307,7 @@ export default function App() {
               borderRight: '1px solid #1f2937',
               transform: sidebarOpen ? 'none' : `translateX(-${drawerWidth}px)`,
               transition: 'transform 0.2s ease-in-out',
+              overflowY: 'auto',
             },
           }}
         >
@@ -403,6 +404,9 @@ export default function App() {
             p: 3,
             width: sidebarOpen ? `calc(100% - ${drawerWidth}px)` : '100%',
             transition: 'width 0.2s / transform 0.2s ease-in-out',
+            overflowY: 'auto',
+            height: '100vh',
+            boxSizing: 'border-box',
           }}
         >
           <Toolbar />
