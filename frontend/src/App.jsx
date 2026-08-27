@@ -373,7 +373,7 @@ export default function App() {
                         />
                       }
                       label={`${lvl}% selectivity`}
-                      componentsProps={{ typography: { fontSize: 13 } }}
+                      slotProps={{ typography: { fontSize: 13 } }}
                     />
                   ))}
                 </FormGroup>
@@ -432,7 +432,7 @@ export default function App() {
                   <Grid container spacing={3} sx={{ mb: 3 }}>
                     
                     {/* FT_runtime card */}
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <Card sx={{ borderLeft: `5px solid ${currentSweep.ft_runtime ? '#f87171' : '#1f2937'}` }}>
                         <CardContent>
                           <Typography color="text.secondary" variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
@@ -449,7 +449,7 @@ export default function App() {
                     </Grid>
 
                     {/* PTT card */}
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <Card sx={{ borderLeft: `5px solid ${currentSweep.ptt ? '#9b59b6' : '#1f2937'}` }}>
                         <CardContent>
                           <Typography color="text.secondary" variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
@@ -468,7 +468,7 @@ export default function App() {
                     </Grid>
 
                     {/* Risk Classification card */}
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <Card sx={{ borderLeft: `5px solid ${getRiskColor(currentSweep.risk_classification) === 'error' ? '#f87171' : getRiskColor(currentSweep.risk_classification) === 'warning' ? '#f59e0b' : '#10b981'}` }}>
                         <CardContent>
                           <Typography color="text.secondary" variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
@@ -490,7 +490,7 @@ export default function App() {
                     </Grid>
 
                     {/* Baseline runtime card */}
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <Card sx={{ borderLeft: '5px solid #10b981' }}>
                         <CardContent>
                           <Typography color="text.secondary" variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
@@ -547,7 +547,7 @@ export default function App() {
                           <CartesianGrid strokeDasharray="3 3" stroke="#222" />
                           <XAxis dataKey="name" stroke="#666" />
                           <YAxis stroke="#666" label={{ value: 'Median Runtime (ms)', angle: -90, position: 'insideLeft', fill: '#666' }} />
-                          <Tooltip contentStyle={{ backgroundColor: '#111', borderColor: '#333', color: '#fff' }} />
+                          <ChartTooltip contentStyle={{ backgroundColor: '#111', borderColor: '#333', color: '#fff' }} />
                           
                           {/* Dotted threshold line */}
                           <ReferenceLine
