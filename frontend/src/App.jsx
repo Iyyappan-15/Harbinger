@@ -329,6 +329,7 @@ export default function App() {
                 max={5.0}
                 step={0.1}
                 valueLabelDisplay="auto"
+                disabled={loading}
               />
               <Typography variant="body2" sx={{ color: '#cbd5e1', fontSize: '13px', mt: 0.5, display: 'block', lineHeight: 1.35 }}>
                 Cross this limit (x baseline) to trigger Performance Fragility (FT_runtime).
@@ -348,6 +349,7 @@ export default function App() {
                 max={10}
                 step={1}
                 valueLabelDisplay="auto"
+                disabled={loading}
               />
               <Typography variant="body2" sx={{ color: '#cbd5e1', fontSize: '13px', mt: 0.5, display: 'block', lineHeight: 1.35 }}>
                 Number of executions evaluated to determine the median query runtime.
@@ -367,6 +369,7 @@ export default function App() {
                           checked={selectedLevels.includes(lvl)}
                           onChange={() => handleLevelChange(lvl)}
                           size="small"
+                          disabled={loading}
                         />
                       }
                       label={`${lvl}% selectivity`}
@@ -424,7 +427,7 @@ export default function App() {
               )}
 
               {currentSweep ? (
-                <>
+                <Box sx={{ opacity: loading ? 0.35 : 1, pointerEvents: loading ? 'none' : 'auto', transition: 'opacity 0.2s ease-in-out' }}>
                   {/* Summary Metric Cards */}
                   <Grid container spacing={3} sx={{ mb: 3 }}>
                     
@@ -464,18 +467,19 @@ export default function App() {
                       </Card>
                     </Grid>
 
-                    {/* Risk Rating card */}
+                    {/* Risk Classification card */}
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ borderLeft: '5px solid transparent' }}>
+                      <Card sx={{ borderLeft: `5px solid ${getRiskColor(currentSweep.risk_classification) === 'error' ? '#f87171' : getRiskColor(currentSweep.risk_classification) === 'warning' ? '#f59e0b' : '#10b981'}` }}>
                         <CardContent>
                           <Typography color="text.secondary" variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
                             Risk Classification
                           </Typography>
                           <Box sx={{ mt: 1 }}>
                             <Chip
-                              label={currentSweep.risk_classification || "Low"}
+                              label={currentSweep.risk_classification}
                               color={getRiskColor(currentSweep.risk_classification)}
-                              sx={{ fontWeight: 'bold', fontSize: 18, height: 38, px: 1 }}
+                              size="medium"
+                              sx={{ fontWeight: 'bold' }}
                             />
                           </Box>
                           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
@@ -485,15 +489,15 @@ export default function App() {
                       </Card>
                     </Grid>
 
-                    {/* Baseline Median card */}
+                    {/* Baseline runtime card */}
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ borderLeft: '5px solid #34d399' }}>
+                      <Card sx={{ borderLeft: '5px solid #10b981' }}>
                         <CardContent>
                           <Typography color="text.secondary" variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
                             Baseline Median Runtime
                           </Typography>
-                          <Typography variant="h4" sx={{ fontWeight: 'bold', mt: 1, color: '#34d399' }}>
-                            {currentSweep.baseline_median_ms ? `${currentSweep.baseline_median_ms.toFixed(3)} ms` : "0.0 ms"}
+                          <Typography variant="h4" sx={{ fontWeight: 'bold', mt: 1, color: '#10b981' }}>
+                            {currentSweep.baseline_median_ms.toFixed(3)} ms
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
                             Execution time at baseline (5% selectivity)
@@ -501,14 +505,19 @@ export default function App() {
                         </CardContent>
                       </Card>
                     </Grid>
+
                   </Grid>
 
-                  {/* Insight box */}
-                  <Paper variant="outlined" sx={{ p: 2.5, mb: 4, bgcolor: '#0b0f19', border: '1px solid #1f2937' }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1, color: '#4a9eff' }}>
+                  {/* Interpretation Alert Box */}
+                  <Alert severity={
+                    currentSweep.ft_runtime !== null && currentSweep.ptt !== null
+                      ? currentSweep.ft_runtime < currentSweep.ptt ? "error" : "warning"
+                      : currentSweep.ft_runtime !== null ? "error" : "success"
+                  } sx={{ mb: 4, bgcolor: '#0f1322', border: '1px solid #1f2937' }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
                       ENGINE INTERPRETATION:
                     </Typography>
-                    <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                    <Typography variant="body2">
                       {currentSweep.ft_runtime !== null && currentSweep.ptt !== null ? (
                         currentSweep.ft_runtime < currentSweep.ptt ? (
                           `🔴 Case A Detected: Performance degrades at ${currentSweep.ft_runtime}% selectivity before the plan actually switches at ${currentSweep.ptt}%. FT_runtime (${currentSweep.ft_runtime}%) < PTT (${currentSweep.ptt}%). Real-time monitors will miss this silent regression.`
@@ -517,49 +526,44 @@ export default function App() {
                         ) : (
                           `🟠 Performance regression and plan transition occur simultaneously at ${currentSweep.ft_runtime}%.`
                         )
-                      ) : currentSweep.ft_runtime !== null ? (
-                        `🔴 Case B Detected: Performance degrades at ${currentSweep.ft_runtime}% selectivity but PostgreSQL Query Planner maintains the same plan structure up to the tested maximum. Same Plan != Same Performance.`
+                      ) : currentSweep.ft_runtime !== null && currentSweep.ptt === null ? (
+                        `🔴 Case B Detected: Performance degrades at ${currentSweep.ft_runtime}% selectivity without any query plan transition. FT_runtime = ${currentSweep.ft_runtime}% | PTT = None. Index bloat or cache saturation is likely.`
+                      ) : currentSweep.ft_runtime === null && currentSweep.ptt !== null ? (
+                        `🟢 Case C Detected: Query plan transitioned to sequential scan at ${currentSweep.ptt}% selectivity, but execution time stayed below the safety threshold limit.`
                       ) : (
-                        `🟢 Case D Detected: No fragility or regressions observed across the tested selectivity range.`
+                        `🟢 Case D Detected: No performance regression or plan transitions detected up to ${Math.max(...currentSweep.results.map(r => r.selectivity_pct))}% selectivity.`
                       )}
                     </Typography>
-                  </Paper>
+                  </Alert>
 
-                  {/* Recharts chart */}
-                  <Paper variant="outlined" sx={{ p: 3, mb: 4 }}>
+                  {/* Chart Section */}
+                  <Paper variant="outlined" sx={{ p: 3, mb: 4, bgcolor: '#0b0f19' }}>
                     <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
                       Selectivity vs. Execution Median Runtime
                     </Typography>
                     <Box sx={{ width: '100%', height: 350 }}>
                       <ResponsiveContainer>
-                        <LineChart data={chartData} margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                          <XAxis dataKey="name" stroke="#6b7280" />
-                          <YAxis stroke="#6b7280" label={{ value: 'Median Runtime (ms)', angle: -90, position: 'insideLeft', offset: 0, fill: '#6b7280' }} />
-                          <ChartTooltip
-                            contentStyle={{ backgroundColor: '#111827', borderColor: '#1f2937' }}
-                            labelStyle={{ color: '#fff', fontWeight: 'bold' }}
-                          />
-                          <Legend />
+                        <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#222" />
+                          <XAxis dataKey="name" stroke="#666" />
+                          <YAxis stroke="#666" label={{ value: 'Median Runtime (ms)', angle: -90, position: 'insideLeft', fill: '#666' }} />
+                          <Tooltip contentStyle={{ backgroundColor: '#111', borderColor: '#333', color: '#fff' }} />
                           
-                          {/* Horizon line for 2x baseline threshold limit */}
+                          {/* Dotted threshold line */}
                           <ReferenceLine
-                            y={thresholdLimit}
-                            stroke="#fbbf24"
-                            strokeDasharray="5 5"
-                            label={{ value: `Threshold Limit (${thresholdLimit.toFixed(2)} ms)`, fill: '#fbbf24', position: 'top' }}
+                            y={currentSweep.baseline_median_ms * (currentSweep.threshold || threshold)}
+                            stroke="#f59e0b"
+                            strokeDasharray="4 4"
+                            label={{
+                              value: `Threshold Limit (${(currentSweep.baseline_median_ms * (currentSweep.threshold || threshold)).toFixed(2)} ms)`,
+                              fill: '#f59e0b',
+                              position: 'insideBottomRight'
+                            }}
                           />
-
-                          <Line
-                            type="monotone"
-                            dataKey="runtime"
-                            stroke="#4a9eff"
-                            name="Median Runtime (ms)"
-                            strokeWidth={3}
-                            activeDot={{ r: 8 }}
-                          />
-
-                          {/* Dots highlighting checkpoints */}
+                          
+                          <Line type="monotone" dataKey="runtime" name="Median Runtime (ms)" stroke="#4a9eff" strokeWidth={2.5} activeDot={{ r: 8 }} />
+                          
+                          {/* Mark execution regression points visually */}
                           {chartData.map((d, index) => {
                             if (d.isTransitioned) {
                               return <ReferenceDot key={index} x={d.name} y={d.runtime} r={6} fill="#9b59b6" stroke="none" />;
@@ -571,17 +575,6 @@ export default function App() {
                           })}
                         </LineChart>
                       </ResponsiveContainer>
-                    </Box>
-                    <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent: 'center' }}>
-                      <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: '50%', backgroundColor: '#4a9eff' }}></span> Normal Query
-                      </Typography>
-                      <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: '50%', backgroundColor: '#f87171' }}></span> Regressed (FT_runtime)
-                      </Typography>
-                      <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: '50%', backgroundColor: '#9b59b6' }}></span> Plan Changed (PTT)
-                      </Typography>
                     </Box>
                   </Paper>
 
@@ -653,7 +646,7 @@ export default function App() {
                       Export JSON Result
                     </Button>
                   </Box>
-                </>
+                </Box>
               ) : (
                 <Alert severity="warning">
                   No sweep execution results loaded. Configure the settings panel and click **Execute Sweep**.
